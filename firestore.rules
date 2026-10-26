@@ -1,0 +1,46 @@
+rules_version = '2';
+
+// Deploy with: firebase deploy --only firestore:rules
+// (or paste into Firebase Console > Firestore Database > Rules)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only this account can change site content.
+    // Keep in sync with ADMIN_EMAILS in src/lib/config.ts.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'raj818799@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Public site reads; only the admin writes.
+    match /projects/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /testimonials/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Contact form: anyone can submit a well-formed brief, only the admin can read it.
+    match /leads/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'email', 'company', 'type', 'timeline', 'message', 'status', 'createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$') && request.resource.data.email.size() <= 200
+        && request.resource.data.company is string && request.resource.data.company.size() <= 160
+        && request.resource.data.type is string && request.resource.data.type.size() <= 60
+        && request.resource.data.timeline is string && request.resource.data.timeline.size() <= 60
+        && request.resource.data.message is string && request.resource.data.message.size() >= 10 && request.resource.data.message.size() <= 4000
+        && request.resource.data.status == 'new'
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

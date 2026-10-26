@@ -1,0 +1,240 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #EDEDEB;
+  --color-paper-ink: #111113;
+  --color-paper-muted: #5E5E63;
+
+  --color-ink-950: #0B0B0C;
+  --color-ink-900: #111113;
+  --color-ink-850: #17171A;
+  --color-ink-800: #1E1E22;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.16);
+
+  --color-fg: #EDEDEA;
+  --color-muted: #A1A1A6;
+  --color-subtle: #74747A;
+
+  --color-rec: #E5484D;
+  --color-rec-strong: #D33A3F;
+  --color-ok: #4CC38A;
+
+  --font-display: var(--font-outfit), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-card: 16px;
+  --radius-thumb: 12px;
+  --radius-btn: 10px;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+/* ---------- Liquid Glass (web approximation of Apple's Liquid Glass) ----------
+   Clear rather than frosted: light blur, boosted saturation, a bright specular rim
+   (top-left strong, bottom-right soft) and a faint inner glow. In Chromium
+   (html.lg-refract, set in the root layout) the backdrop also refracts at the edges
+   through the SVG filters in components/ui/LiquidFilters.
+
+   liquid / liquid-dark       refract (Chromium)   pills, buttons, chips, panels over imagery
+   liquid-lite / -dark-lite   never refract        many-per-screen or moving elements (cards, nav)
+*/
+@layer components {
+  .liquid, .liquid-lite {
+    background:
+      radial-gradient(130% 90% at 12% 0%, rgb(255 255 255 / 0.16), transparent 46%),
+      linear-gradient(160deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.015) 45%, rgb(255 255 255 / 0.05));
+    -webkit-backdrop-filter: blur(4px) saturate(185%) brightness(1.08);
+    backdrop-filter: blur(4px) saturate(185%) brightness(1.08);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.09),
+      inset 1.5px 1.5px 1px -0.5px rgb(255 255 255 / 0.55),
+      inset -1.5px -1.5px 1px -0.5px rgb(255 255 255 / 0.22),
+      inset 0 0 16px rgb(255 255 255 / 0.06),
+      0 10px 30px -14px rgb(0 0 0 / 0.6);
+  }
+  /* Classic frosted glassmorphism (What I make cards). */
+  .glass-strong {
+    background: linear-gradient(135deg, rgb(23 23 26 / 0.72), rgb(11 11 12 / 0.55));
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid rgb(255 255 255 / 0.10);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.10), 0 30px 80px -30px rgb(0 0 0 / 0.8);
+  }
+  .liquid-dark, .liquid-dark-lite {
+    background:
+      radial-gradient(120% 70% at 10% 0%, rgb(255 255 255 / 0.10), transparent 45%),
+      linear-gradient(160deg, rgb(28 28 32 / 0.55), rgb(11 11 12 / 0.40));
+    -webkit-backdrop-filter: blur(10px) saturate(170%);
+    backdrop-filter: blur(10px) saturate(170%);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.08),
+      inset 1.5px 1.5px 1px -0.5px rgb(255 255 255 / 0.40),
+      inset -1px -1px 1px -0.5px rgb(255 255 255 / 0.16),
+      inset 0 0 24px rgb(255 255 255 / 0.04),
+      0 30px 80px -30px rgb(0 0 0 / 0.8);
+  }
+  html.lg-refract .liquid { backdrop-filter: url(#lg-refract-sm) blur(1.2px) saturate(185%) brightness(1.08); }
+  html.lg-refract .liquid-dark { backdrop-filter: url(#lg-refract-lg) blur(6px) saturate(170%); }
+
+  .liquid-hover { transition: background-color .4s var(--ease-expo), transform .4s var(--ease-expo); }
+  .liquid-hover:hover { background-color: rgb(255 255 255 / 0.07); transform: translateY(-1px); }
+  .liquid-hover:active { transform: scale(0.98); }
+}
+
+@utility wrap {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 48px);
+}
+
+@layer base {
+  html { color-scheme: dark; -webkit-text-size-adjust: 100%; }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis-smooth { scroll-behavior: auto !important; }
+  .lenis-stopped { overflow: hidden; }
+
+  body {
+    background: var(--color-ink-950);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--color-fg); color: var(--color-ink-950); }
+  :focus-visible { outline: 2px solid var(--color-rec); outline-offset: 3px; border-radius: 4px; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+}
+
+/* Component classes live in a layer so Tailwind utilities (absolute, pl-10, ...) override them. */
+@layer components {
+
+/* ---------- YouTube thumbnails ----------
+   hqdefault.jpg is 4:3 with bars baked in: landscape videos sit in a 16:9 band,
+   shorts sit in a 9:16 strip. Size the image so only the real picture covers its
+   container (which must be a size container). */
+.media-box { container-type: size; position: relative; overflow: hidden; }
+.thumb {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  height: auto; max-width: none;
+}
+.thumb--landscape { width: max(100cqw, 177.78cqh); }
+.thumb--portrait { width: max(237.04cqw, 133.34cqh); }
+.thumb--image { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Justified rows (Work page) ----------
+   9:16 and 16:9 cards share rows at their true aspect ratio, in order, with no cropping.
+   Each card's flex-grow is proportional to its ratio, so every card in a row ends up the
+   same height. The ::after filler stops the last row from stretching. */
+.jrows { --row-h: 200px; display: flex; flex-wrap: wrap; gap: 12px; }
+.jrows::after { content: ""; flex-grow: 999999; }
+.jrow-item {
+  --ar: 1.7778;
+  flex: calc(var(--ar) * 100) 1 calc(var(--ar) * var(--row-h));
+  aspect-ratio: var(--ar);
+  min-width: 0;
+}
+.jrows--featured { --row-h: 260px; }
+.jrows--standard { --row-h: 200px; }
+@media (min-width: 768px) {
+  .jrows { gap: 16px; }
+  .jrows--featured { --row-h: 340px; }
+  .jrows--standard { --row-h: 240px; }
+}
+@media (min-width: 1200px) {
+  .jrows--featured { --row-h: 440px; }
+  .jrows--standard { --row-h: 300px; }
+}
+
+/* ---------- Reveal (IntersectionObserver driven, see components/ui/Reveal) ---------- */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease-expo), transform .9s var(--ease-expo); transition-delay: var(--reveal-delay, 0ms); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Marquee ---------- */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 60s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* ---------- Skeleton shimmer ---------- */
+@keyframes shimmer { to { transform: translateX(100%); } }
+.skeleton { position: relative; overflow: hidden; background: var(--color-ink-850); }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .05), transparent);
+  animation: shimmer 1.6s infinite;
+}
+
+/* ---------- Hero ---------- */
+.hero-band { clip-path: polygon(0 62%, 34% 62%, 38.5% 0, 100% 0, 100% 100%, 0 100%); }
+@media (max-width: 899px) { .hero-band { clip-path: polygon(0 55%, 52% 55%, 60% 0, 100% 0, 100% 100%, 0 100%); } }
+html.js-anim .hero-line > span { transform: translateY(105%); }
+html.js-anim .hero-fade { opacity: 0; transform: translateY(16px); }
+html.intro-done .hero-line > span, html.intro-done .hero-fade { transform: none; opacity: 1; }
+
+/* ---------- Ambient light behind the page (gives the glass something to refract) ----------
+   Fixed, pointer-events none, transform-only drift: no repaint of scrolling content. */
+.ambient { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.ambient > span {
+  position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
+  animation: drift 38s ease-in-out infinite alternate; will-change: transform;
+}
+.ambient > span:nth-child(1) { left: -20vmax; top: -10vmax; background: radial-gradient(circle, rgb(110 130 165 / .16), transparent 62%); }
+.ambient > span:nth-child(2) { right: -25vmax; top: 30vh; background: radial-gradient(circle, rgb(229 72 77 / .07), transparent 60%); animation-duration: 46s; animation-delay: -12s; }
+.ambient > span:nth-child(3) { left: 20vw; bottom: -35vmax; background: radial-gradient(circle, rgb(170 150 135 / .09), transparent 62%); animation-duration: 52s; animation-delay: -25s; }
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6vmax, -4vmax, 0) scale(1.08); }
+  100% { transform: translate3d(-4vmax, 5vmax, 0) scale(.95); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .liquid, .liquid-lite, .liquid-dark, .liquid-dark-lite, .glass-strong { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--color-ink-850); }
+}
+
+/* ---------- Grain (fixed, never on a scrolling container) ---------- */
+.grain {
+  position: fixed; inset: 0; z-index: 80; pointer-events: none; opacity: .05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Form controls ---------- */
+.field-input {
+  width: 100%; border-radius: var(--radius-btn); border: 1px solid var(--color-line-strong);
+  background: var(--color-ink-950); padding: 11px 14px; font-size: 15px; color: var(--color-fg);
+  transition: border-color .3s, box-shadow .3s;
+}
+.field-input::placeholder { color: var(--color-subtle); }
+.field-input:focus { outline: none; border-color: var(--color-fg); box-shadow: 0 0 0 3px rgb(229 72 77 / .35); }
+.field-input[aria-invalid="true"] { border-color: var(--color-rec); }
+select.field-input {
+  appearance: none; padding-right: 36px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-muted) 50%), linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 55%, calc(100% - 15px) 55%; background-size: 5px 5px; background-repeat: no-repeat;
+}
+input[type="range"].range { accent-color: var(--color-fg); }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+} /* end @layer components */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  .reveal { opacity: 1; transform: none; }
+  .marquee-track { animation: none; }
+  .ambient > span { animation: none; }
+}
