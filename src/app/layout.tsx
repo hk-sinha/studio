@@ -3,6 +3,22 @@ import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import { SERVICES, SOCIALS } from "@/lib/config";
 import "./globals.css";
 
+// Live site only: blocks right-click, F12 and the DevTools / view-source / save shortcuts.
+// A deterrent, not real protection: the browser menu can still open DevTools.
+const NO_INSPECT = `(function(){
+  if (/^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname)) return;
+  var stop = function(e){ e.preventDefault(); e.stopPropagation(); return false; };
+  document.addEventListener("contextmenu", stop, true);
+  document.addEventListener("dragstart", function(e){ if (e.target && e.target.tagName === "IMG") stop(e); }, true);
+  document.addEventListener("keydown", function(e){
+    var k = (e.key || "").toLowerCase(), mod = e.ctrlKey || e.metaKey;
+    if (k === "f12"
+      || (mod && e.shiftKey && (k === "i" || k === "j" || k === "c" || k === "k"))
+      || (e.metaKey && e.altKey && (k === "i" || k === "j" || k === "c" || k === "u"))
+      || (mod && (k === "u" || k === "s"))) return stop(e);
+  }, true);
+})();`;
+
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500"], variable: "--font-outfit", display: "swap" });
 const geist = Geist({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-geist", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-geist-mono", display: "swap" });
@@ -59,6 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${outfit.variable} ${geist.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: BOOT }} />
+        {process.env.NODE_ENV === "production" && <script dangerouslySetInnerHTML={{ __html: NO_INSPECT }} />}
         <link rel="preconnect" href="https://i.ytimg.com" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       </head>
